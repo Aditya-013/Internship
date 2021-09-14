@@ -2,6 +2,7 @@ import random
 import numpy as np
 import heuristics_random_swap as hrp
 import jumble as jbl 
+import Genetic01 as gen
 
 ## Calculating the sum of each pile
 def Fitness_Calc(row, k):
@@ -10,11 +11,11 @@ def Fitness_Calc(row, k):
 		temp = 0
 		for j in range(0,len(row[i])):
 			temp = temp + row[i][j]
-		sum_arr.append(temp/k)
+		sum_arr.append(float(temp/k))
 
-	max1 = max(sum_arr)
-	min1 = min(sum_arr)
-	return max1 - min1 
+	max1 = float(max(sum_arr))
+	min1 = float(min(sum_arr))
+	return float(max1 - min1) 
 
 # arr = [99, 3, 95, 90, 96, 98, 93, 92, 95]
 f = open("non_uni/non_uni/alm1_10_5_12", "r")
@@ -27,6 +28,8 @@ k = y[1]
 n = y[0]
 arr = y[2:]
 x = x[1:]
+x = np.array(x)
+x = x.astype(float)
 row = []
 order = []
 sum_of_arrays = []
@@ -59,11 +62,12 @@ fitness_main = Fitness_Calc(row, k)
 # 		order.append(rand)
 # 		i = i + 1
 
-print()
+print("")
 print('                         ----Initial Solution ----')
 print('The inital order of the piles: {}'.format(row))	#Randomly generated set of piles 
 print('Fitness of the piles {}'.format(fitness_main))
-print()
+print("")
+
 
 # Four Heuristics to be assigned after this with the help of RL 
 # 1) Random Swap	2) Pertubation Search	3) Genetic Algorithm 
@@ -106,6 +110,47 @@ print()
 steps = 20000
 jumble = 0
 swaps = 0
+
+number_of_population = 10
+i = 10
+population = []
+population_fitness = []
+
+while i > 0:
+	obj1 = jbl.Jumble_Swap(k, x)			#jbl is an object in jumple.py
+	row = obj1.Process_jumble(k, x)
+
+	population.append(row)
+	population_fitness.append(Fitness_Calc(row, k))
+	i = i-1
+
+temp1 = []
+temp2 = []
+
+# Selection of the 2 best parents with the best fitness values (for now)
+for i in range(10):
+	for j in range(i+1, 10):
+		if population_fitness[j] < population_fitness[i]:
+			temp1 = population_fitness[j]
+			population_fitness[j] = population_fitness[i]
+			population_fitness[i] = temp1
+
+			temp2 = population[j]
+			population[j] = population[i]
+			population[i] = temp2
+
+print("")
+print("          ------Population pool------")
+i = 0
+while i < 10:
+	print(population[i], "  Fitness Value :: {:.2f}" .format(population_fitness[i]))
+	i = i + 1
+
+obj2 = gen.Genetic_Algo(population[0], population[1], k, x)
+child = obj2.CrossOver(population[0], population[1], k, x)
+# print(child)
+
+"""
 
 while steps > 0:
 
@@ -161,4 +206,5 @@ print()
 
 
 
+"""
 
